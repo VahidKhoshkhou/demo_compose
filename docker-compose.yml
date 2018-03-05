@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  demo_mysql:
+     container_name: demo_mysql
+     image: mysql:latest
+     restart: always
+     environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: test
+        MYSQL_USER: sa
+        MYSQL_PASSWORD: password
+     volumes:
+           - db_data:/var/lib/mysql
+        
+     ports:
+           - "3306:3306"
+
+  app-demo:
+    build:
+       context: .
+       dockerfile: Dockerfile
+    depends_on:
+         - demo_mysql
+    image: demo-image
+    ports:
+          - "8080:8080"
+          
+volumes:
+     - db_data:   
+  
