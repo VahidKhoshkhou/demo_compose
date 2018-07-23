@@ -1,31 +1,44 @@
 version: "3"
-
+networks:
+   dbnet2:
 services:
-  demo_mysql:
-     container_name: demo_mysql
+   mysql: 
      image: mysql:latest
-     restart: always
+     container_name: mysql
      environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: test
         MYSQL_USER: sa
         MYSQL_PASSWORD: password
-     volumes:
-           - db_data:/var/lib/mysql
-        
+        MYSQL_ROOT_PASSWORD: password
+        MYSQL_DATABASE: test
+     networks:
+          - dbnet2   
      ports:
-           - "3306:3306"
+           - "3306:3306"   
+   phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin
+      networks:
+          - dbnet2
+      links:
+      - "mysql:database"
+      ports:
+           - "8085:80"     
+      environment:
+         PMA_HOST: mysql
+         PMA_PORT: 3306   
 
-  app-demo:
-    build:
+   app-demo:
+     build:
        context: .
        dockerfile: Dockerfile
-    depends_on:
-         - demo_mysql
-    image: demo-image
-    ports:
-          - "8080:8080"
+     image: demo-image
+     container_name: app-demo
+     networks:
+          - dbnet2
+     links:
+      - "mysql:database"
+     ports:
+         - "8080:8080"
           
-volumes:
-     - db_data:   
+  
   
